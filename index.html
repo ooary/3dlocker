@@ -141,6 +141,41 @@
          .generate-btn:hover {
             background-color: #059669;
          }
+         .control-toggle {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 15;
+            font-weight: 600;
+            transition: background-color 0.2s;
+         }
+         .control-toggle:hover {
+            background-color: #2563eb;
+         }
+         .control-panel.hidden {
+            display: none;
+         }
+         .download-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #8b5cf6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 0.5rem;
+         }
+         .download-btn:hover {
+            background-color: #7c3aed;
+         }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -165,7 +200,9 @@
         <p class="text-gray-600">Customize your locker dimensions and click Generate to create your 3D model.</p>
     </div>
 
-    <div class="control-panel">
+    <button class="control-toggle" id="togglePanel" onclick="toggleControlPanel()">Hide Panel</button>
+
+    <div class="control-panel" id="controlPanel">
         <h3 class="text-lg font-semibold mb-4 text-gray-700">Locker Configuration</h3>
         
         <div class="form-group">
@@ -194,6 +231,7 @@
         </div>
         
         <button class="generate-btn" onclick="generateLocker()">Generate Locker</button>
+        <button class="download-btn" onclick="downloadScreenshot()">Download 3D Image</button>
     </div>
 
     <div id="keypad-container" class="keypad-container">
@@ -542,6 +580,41 @@
                 setTimeout(() => { messageBox.style.display = 'none'; }, 500);
             }, 3000);
         }
+
+        // --- Control Panel Toggle ---
+        window.toggleControlPanel = function() {
+            const panel = document.getElementById('controlPanel');
+            const toggleBtn = document.getElementById('togglePanel');
+            
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+                toggleBtn.textContent = 'Hide Panel';
+                toggleBtn.style.right = '20px';
+            } else {
+                panel.classList.add('hidden');
+                toggleBtn.textContent = 'Show Panel';
+                toggleBtn.style.right = '20px';
+            }
+        };
+
+        // --- Download Screenshot ---
+        window.downloadScreenshot = function() {
+            // Render the scene to capture current state
+            renderer.render(scene, camera);
+            
+            // Create a link element to download the image
+            const link = document.createElement('a');
+            link.download = `3d-locker-${new Date().getTime()}.png`;
+            
+            // Convert canvas to blob and create download URL
+            renderer.domElement.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                link.href = url;
+                link.click();
+                URL.revokeObjectURL(url);
+                showMessage('3D image downloaded successfully!', 'success');
+            }, 'image/png');
+        };
 
         init();
     </script>
